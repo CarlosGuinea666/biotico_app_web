@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- ===============================
+       CONFIGURACIÓN DE METADATOS
+       =============================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consulta Biótica Avanzada</title>
+
+  <!-- ===============================
+       INCLUSIÓN DE ESTILOS EXTERNOS
+       =============================== -->
+  <!-- Bootstrap 5 para maquetación responsiva -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Select2 para campos select mejorados -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+  <!-- ===============================
+       ESTILOS PERSONALIZADOS
+       =============================== -->
+  <style>
+    body { background-color: #f8f9fa; }
+
+    /* Estilo visual para los select2 */
+    .select2-container--default .select2-selection--single {
+      height: 38px;
+      padding: 6px 12px;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      min-height: 38px;
+      padding: 6px 12px;
+    }
+
+    /* Título más pequeño en pantallas pequeñas */
+    @media (max-width: 768px) {
+      h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+<main class="container py-4">
+
+  <!-- ===============================
+       ENCABEZADO PRINCIPAL
+       =============================== -->
+  <h2 class="mb-4 text-center">Consulta Avanzada de la Base de Datos Biótica</h2>
+
+  <!-- ===============================
+       FORMULARIO PRINCIPAL DE BÚSQUEDA
+       =============================== -->
+  <form action="/buscar" method="POST" autocomplete="off" aria-label="Formulario de búsqueda avanzada">
+
+    <!-- Campo de texto para búsqueda libre -->
+    <div class="mb-3">
+      <label for="palabra" class="form-label">Palabra clave:</label>
+      <input type="text" class="form-control" id="palabra" name="palabra" placeholder="Ej: Tyrannus melancholicus">
+    </div>
+
+    <!-- Campo de selección de columna específica -->
+    <div class="mb-3">
+      <label for="columna" class="form-label">Buscar en columna:</label>
+      <select id="columna" name="columna" class="form-select select2">
+        <option value="__todas__">Todas las columnas</option>
+        {% for columna in columnas %}
+          <option value="{{ columna }}">{{ columna }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- ===============================
+         INTERRUPTOR DE BÚSQUEDA AVANZADA
+         =============================== -->
+    <div class="form-check form-switch mb-4">
+      <input class="form-check-input" type="checkbox" id="toggleBusquedaAvanzada">
+      <label class="form-check-label" for="toggleBusquedaAvanzada">
+        ¿Realizar búsqueda avanzada?
+      </label>
+    </div>
+
+    <!-- ===============================
+         FILTROS AVANZADOS (OCULTOS POR DEFECTO)
+         =============================== -->
+    <div id="filtros-avanzados" style="display: none;">
+
+      <!-- Fila 1: Municipio, Proyecto, Código de muestra -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label for="filtro_municipio" class="form-label">Municipio:</label>
+          <select id="filtro_municipio" name="filtro_municipio" class="form-select select2">
+            <option value="">-- Cualquiera --</option>
+            {% for mun in municipios %}
+              <option value="{{ mun }}">{{ mun }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="filtro_proyecto" class="form-label">Proyecto:</label>
+          <select id="filtro_proyecto" name="filtro_proyecto" class="form-select select2">
+            <option value="">-- Cualquiera --</option>
+            {% for proyecto in proyectos %}
+              <option value="{{ proyecto }}">{{ proyecto }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="codigo_de_muestra" class="form-label">Código de muestra:</label>
+          <input type="text" class="form-control" id="codigo_de_muestra" name="codigo_de_muestra" placeholder="Ej: 12345">
+        </div>
+      </div>
+
+      <!-- Fila 2: Grupo biológico, Tipo de Hidrobiota, Especie -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label for="filtro_grupo_biologico" class="form-label">Grupo Biológico:</label>
+          <select id="filtro_grupo_biologico" name="filtro_grupo_biologico" class="form-select select2">
+            <option value="">-- Cualquiera --</option>
+            {% for grupo in grupos_biologicos %}
+              <option value="{{ grupo }}">{{ grupo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Este campo aparece solo si se elige "Hidrobiológico" -->
+        <div class="col-md-4" id="contenedor_tipo_hidrobiota" style="display: none;">
+          <label for="filtro_tipo_hidrobiota" class="form-label">Tipo de Hidrobiota:</label>
+          <select id="filtro_tipo_hidrobiota" name="filtro_tipo_hidrobiota" class="form-select select2">
+            <option value="">-- Todos --</option>
+            {% for tipo in tipos_hidrobiota %}
+              <option value="{{ tipo }}">{{ tipo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label for="filtro_especie" class="form-label">Especie:</label>
+          <select id="filtro_especie" name="filtro_especie" class="form-select select2">
+            <option value="">-- Cualquiera --</option>
+            {% for especie in especies %}
+              <option value="{{ especie }}">{{ especie }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Selección múltiple de columnas a mostrar -->
+      <div class="mb-3">
+        <label for="columnas_mostrar" class="form-label">Columnas a mostrar:</label>
+        <select id="columnas_mostrar" name="columnas_mostrar" multiple class="form-select select2">
+          <option value="__todas__">Mostrar todas</option>
+          {% for columna in columnas %}
+            <option value="{{ columna }}">{{ columna }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    </div> <!-- Fin del contenedor de filtros avanzados -->
+
+    <!-- Botones de acción -->
+    <div class="d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-primary">🔍 Buscar</button>
+      <button type="reset" class="btn btn-secondary">🧹 Limpiar</button>
+    </div>
+
+  </form>
+</main>
+
+<!-- ===============================
+     INCLUSIÓN DE SCRIPTS JAVASCRIPT
+     =============================== -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ===============================
+     LÓGICA DE INTERACCIÓN DINÁMICA
+     =============================== -->
+<script>
+  $(document).ready(function () {
+    // Inicializa Select2 para todos los campos select
+    $('.select2').select2({ width: '100%' });
+
+    // Manejo del interruptor para mostrar u ocultar filtros avanzados
+    const toggle = $('#toggleBusquedaAvanzada');
+    const filtrosAvanzados = $('#filtros-avanzados');
+
+    toggle.on('change', function () {
+      if (toggle.is(':checked')) {
+        filtrosAvanzados.slideDown(); // Mostrar filtros
+      } else {
+        filtrosAvanzados.slideUp();   // Ocultar filtros
+        filtrosAvanzados.find('select, input').val('').trigger('change'); // Limpiar
+      }
+    });
+
+    // Lógica para mostrar el campo "Tipo de Hidrobiota" si se selecciona el grupo correcto
+    const grupoBiologico = $('#filtro_grupo_biologico');
+    const contenedorHidrobiota = $('#contenedor_tipo_hidrobiota');
+    const filtroTipoHidrobiota = $('#filtro_tipo_hidrobiota');
+
+    function actualizarFiltroHidrobiota() {
+      const valor = grupoBiologico.val();
+      if (valor === "Hidrobiológico") {
+        contenedorHidrobiota.show();
+      } else {
+        contenedorHidrobiota.hide();
+        filtroTipoHidrobiota.val('').trigger('change');
+      }
+    }
+
+    grupoBiologico.on('change', actualizarFiltroHidrobiota);
+    actualizarFiltroHidrobiota(); // Ejecuta al cargar
+  });
+</script>
+
+</body>
+</html>
