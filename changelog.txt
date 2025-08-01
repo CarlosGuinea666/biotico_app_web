@@ -1,0 +1,31 @@
+# BIOTICO_APP_WEB - Historial de Cambios
+
+## v1.0 - Estructura inicial (Julio 2025)
+- Se crea estructura básica de Flask (app.py, templates/, static/)
+- Se configura archivo `requirements.txt`
+- Se implementa filtro de búsqueda en HTML y resultados renderizados
+
+## v1.1 - Exportación a Excel (Julio 2025)
+- Se agrega ruta `/exportar_excel` para descargar resultados
+- Se usa `pandas.to_excel()` y `send_file()` con sesión de usuario
+
+## v2.0 - Conexión a base de datos MySQL en línea (Julio 2025)
+- Se reemplaza conexión local por conexión a Railway con host `nozomi.proxy.rlwy.net`
+- Se ajusta consulta con cursor remoto
+
+## v2.1 - Soporte de filtros por municipio y fecha (Julio 2025)
+- Se agregan campos en `index.html` para seleccionar municipio y fechas
+- Se ajusta SQL dinámico en app.py
+- Se modifican rutas para permitir exportar lo filtrado
+
+## v2.2 - Preparación para despliegue en Render (Julio 2025)
+- Se añade `requirements.txt` completo con `gunicorn`
+- Se crea `Procfile` con la línea `web: gunicorn app:app`
+- Se configura `.gitignore`
+- Se despliega exitosamente en Render
+
+## v2.3 - Optimización visual y pruebas (Julio 2025)
+- Se revisa visualmente `results.html` e `index.html`
+- Se limpia entorno de desarrollo (`venv` ignorado)
+- Se verifican variables de entorno en Render
+
