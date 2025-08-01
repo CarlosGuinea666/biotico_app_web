@@ -46,11 +46,11 @@ def limpiar_archivos_antiguos():
 # Se crea un pool de conexiones para mejorar el rendimiento y reutilizar conexiones
 # a la base de datos MySQL.
 dbconfig = {
-    "host": "nozomi.proxy.rlwy.net",
-    "port": 29793,
-    "user": "root",
-    "password": "ThEGJZlhYbfxjdCvtTBshusvcqjGZSRF",
-    "database": "railway"
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT")),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "database": os.getenv("DB_NAME")
 }
 cnxpool = pooling.MySQLConnectionPool(pool_name="mypool", pool_size=5, **dbconfig)
 
